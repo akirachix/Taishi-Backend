@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user.apps.UserConfig',
     'user_profile.apps.UserProfileConfig',
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -53,10 +55,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'themis.urls'
 
+import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
