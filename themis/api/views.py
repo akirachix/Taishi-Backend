@@ -4,47 +4,43 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
+from .serializers import LoginSerializer
 from user.forms import UserSignupForm, UserLoginForm  
 from .serializers import UserSerializer, ProfileSerializer
 from user.models import User
 from user_profile.models import UserProfile
+from rest_framework.permissions import AllowAny
 
 class SignupView(APIView):
     """
     API view for user registration
     """
-    def get(self, request):
-        form = UserSignupForm()
-        return render(request, 'user/signup.html', {'form': form})
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        form = UserSignupForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('user_login')
-        return render(request, 'user/signup.html', {'form': form})
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({'message': 'User created successfully!', 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+       
 
 class LoginView(APIView):
     """
     API view for user login
     """
-    def get(self, request):
-        form = UserLoginForm()
-        return render(request, 'user/login.html', {'form': form})
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        form = UserLoginForm(request, data=request.POST)
-        if form.is_valid():
-            email = form.cleaned_data.get('email')
-            password = form.cleaned_data.get('password')
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect('some_dashboard_url') 
-            else:
-                return render(request, 'user/login.html', {'form': form, 'error': 'Invalid credentials'})
-        return render(request, 'user/login.html', {'form': form})
-
+            if user:
+                return Response({'message': 'Login successful!'}, status=status.HTTP_200_OK)
+            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileView(generics.RetrieveUpdateAPIView):
     """
