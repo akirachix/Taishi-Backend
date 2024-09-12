@@ -4,7 +4,6 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from urllib.parse import quote_plus, urlencode
-from .forms import CustomUserCreationForm  
 from django.contrib.auth import login
 
 oauth = OAuth()
