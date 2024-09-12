@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework import generics
 from .serializers import LoginSerializer
 from user.forms import UserSignupForm, UserLoginForm  
-from .serializers import UserSerializer, ProfileSerializer
+from .serializers import UserSerializer
 from user.models import User
 from user_profile.models import UserProfile
 from rest_framework.permissions import AllowAny
@@ -53,14 +53,6 @@ class LoginView(APIView):
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ProfileView(generics.RetrieveUpdateAPIView):
-    """
-    API view to retrieve or update user profile
-    """
-    queryset = UserProfile.objects.all()
-    serializer_class = ProfileSerializer
-    lookup_field = 'pk' 
-
 
 class UserDetailView(generics.RetrieveUpdateAPIView):
     """
@@ -78,10 +70,3 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-
-class ProfileListView(generics.ListAPIView):
-    """
-    API view to retrieve the list of all profiles
-    """
-    queryset = UserProfile.objects.all()
-    serializer_class = ProfileSerializer
