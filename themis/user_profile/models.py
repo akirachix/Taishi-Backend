@@ -1,5 +1,5 @@
 from django.db import models
-from django.conf import settings  # Import settings to access AUTH_USER_MODEL
+from django.conf import settings  
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -10,7 +10,7 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}'s Profile"
 
-# Automatically create or update the UserProfile when a User is created or updated
+
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
