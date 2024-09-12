@@ -4,12 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import generics
+
+from user.permissions import HasAdminPermissions
 from .serializers import LoginSerializer
 from user.forms import UserSignupForm, UserLoginForm  
 from .serializers import UserSerializer
 from user.models import User
 from user_profile.models import UserProfile
 from rest_framework.permissions import AllowAny
+from .serializers import ProfileSerializer, UserSerializer
 
 class SignupView(APIView):
     """
@@ -70,3 +73,69 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+class ProfileListView(generics.ListAPIView):
+    """
+    API view to retrieve the list of all profiles
+    """
+    queryset = UserProfile.objects.all()
+    serializer_class = ProfileSerializer
+
+class CreateAdminUser(APIView):
+    """ 
+    API view to create a new admin user.
+    """
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email = request.data.get('email', '')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+
+        if not all([username, password, first_name, last_name]):
+            return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                is_superuser=True,
+                is_staff=True,
+                role='admin'
+            )
+            return Response({'message': 'Admin user created successfully'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+class JudgeUser(APIView):
+
+    """ 
+    API view to create a new judge user.
+    """
+
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email = request.data.get('email', '')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+
+        if not all([username, password, first_name, last_name]):
+            return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name,
+                role='judge'
+            )
+            return Response({'message': 'Judge user created successfully'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
