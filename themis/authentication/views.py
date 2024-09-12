@@ -4,7 +4,8 @@ from django.conf import settings
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from urllib.parse import quote_plus, urlencode
-
+from .forms import CustomUserCreationForm  
+from django.contrib.auth import login
 
 oauth = OAuth()
 
@@ -47,9 +48,33 @@ def logout(request):
 def index(request):
     return render(
         request,
-        "index.html",
+        "login/index.html",
         context={
             "session": request.session.get("user"),
             "pretty": json.dumps(request.session.get("user"), indent=4),
         },
     )
+
+def register(request):
+    """
+    Handle user registration.
+    """
+    form = None
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)  
+        if form.is_valid():
+            
+            user = form.save()
+            email = request.session.get('email')
+            if email:
+                user.email = email
+                user.save()
+                request.session.pop('email')
+            
+            login(request, user)
+            
+            return render(request, 'login/index.html', {'form': form})
+    else:
+        form = CustomUserCreationForm() 
+   
+    return render(request, 'login/register.html', {'form': form})

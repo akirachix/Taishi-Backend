@@ -24,7 +24,18 @@ class SignupView(APIView):
             return Response({'message': 'User created successfully!', 'user': UserSerializer(user).data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
        
-
+class CreateAdminUser(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        password = request.data.get('password')
+        email = request.data.get('email', '')
+        first_name = request.data.get('firstname')
+        last_name = request.data.get('lastname')
+        if not User.objects.filter(email=email).exists():
+            User.objects.create_superuser(first_name=first_name, last_name=last_name, email=email, password=password)
+            return Response({"detail": "Superuser created successfully"}, status=status.HTTP_201_CREATED)
+        return Response({"detail": "Superuser already exists"}, status=status.HTTP_400_BAD_REQUEST)
+    
 class LoginView(APIView):
     """
     API view for user login

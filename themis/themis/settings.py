@@ -60,7 +60,7 @@ import os
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR],
+        'DIRS': [ os.path.join(BASE_DIR, 'authentication', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -146,5 +146,4 @@ AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
 AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
 
 REDIRECT_URI = "http://127.0.0.1:8000/auth/callback/"
-
 REDIRECT_URI = "http://127.0.0.1:8000/auth/"
