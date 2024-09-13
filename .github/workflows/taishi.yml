@@ -29,3 +29,18 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test
+
+      - name: Install Black
+        run: |
+          pip install black
+      - name: Check code formatting with Black
+        id: action_black
+        run: |
+          black .
+      - name: Run migrations
+        run: |
+          python kolezzaSawaTok/manage.py migrate
+      - name: Run tests
+        run: |
+          python kolezzaSawaTok/manage.py test
+    
