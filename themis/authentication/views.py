@@ -54,3 +54,9 @@ def index(request):
         },
     )
 
+def check_existing_email(email):
+    """
+    Check if a user with the given email address already exists.
+    """
+    return User.objects.filter(email=email).exists()
+
