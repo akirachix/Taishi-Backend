@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model  # Use get_user_model for custom user models
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,9 +10,19 @@ from .serializers import LoginSerializer
 from user.forms import UserSignupForm, UserLoginForm
 from .serializers import UserSerializer
 from user.models import User
+
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from rest_framework_simplejwt.tokens import RefreshToken
+from user.forms import UserSignupForm, UserLoginForm  
+from .serializers import UserSerializer, ProfileSerializer, LoginSerializer
+
 from user_profile.models import UserProfile
-from rest_framework.permissions import AllowAny
-from .serializers import ProfileSerializer, UserSerializer
+
+
+User = get_user_model()
 
 
 class SignupView(APIView):
@@ -37,6 +47,9 @@ class SignupView(APIView):
 
 
 class CreateAdminUser(APIView):
+    """
+    API view to create a new admin user.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -58,6 +71,31 @@ class CreateAdminUser(APIView):
         return Response(
             {"detail": "Superuser already exists"}, status=status.HTTP_400_BAD_REQUEST
         )
+
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
+        email = data.get('email', '')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+
+        if not all([username, password, first_name, last_name]):
+            return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not User.objects.filter(email=email).exists():
+            try:
+                User.objects.create_superuser(
+                    username=username,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    last_name=last_name
+                )
+                return Response({'message': 'Superuser created successfully'}, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Superuser already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class LoginView(APIView):
@@ -89,8 +127,9 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
     """
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserSerialize
     lookup_field = "pk"
+    lookup_field = 'pk'
 
 
 class UserListView(generics.ListAPIView):
@@ -110,6 +149,7 @@ class UserListView(generics.ListAPIView):
     #        return Response(serializer_class.data, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class ProfileListView(generics.ListAPIView):
     """
     API view to retrieve the list of all profiles
@@ -119,10 +159,20 @@ class ProfileListView(generics.ListAPIView):
     serializer_class = ProfileSerializer
 
 
+
 class CreateAdminUser(APIView):
     """
     API view to create a new admin user.
+
+class ProfileView(generics.RetrieveUpdateAPIView):
+
     """
+    API view to retrieve or update user profile
+    """
+    queryset = UserProfile.objects.all()
+    serializer_class = ProfileSerializer
+    lookup_field = 'pk'
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         username = request.data.get("username")
@@ -155,11 +205,22 @@ class CreateAdminUser(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+    def get_object(self):
+        return self.request.user.profile
+
+    def patch(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        
 class JudgeUser(APIView):
     """
     API view to create a new judge user.
     """
-
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -187,3 +248,16 @@ class JudgeUser(APIView):
             )
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@csrf_exempt
+def generate_token(request):
+    email = request.GET.get('email', 'default_email@example.com')  
+    user, created = User.objects.get_or_create(email=email)  
+    refresh = RefreshToken.for_user(user)
+    return JsonResponse({
+        'access': str(refresh.access_token),
+        'refresh': str(refresh)
+    })

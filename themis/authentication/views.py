@@ -5,8 +5,10 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from urllib.parse import quote_plus, urlencode
 from django.contrib.auth import login
+from django.views.decorators.csrf import csrf_exempt
 
 oauth = OAuth()
+
 
 oauth.register(
     "auth0",
@@ -19,6 +21,7 @@ oauth.register(
 )
 
 
+@csrf_exempt
 def login(request):
     return oauth.auth0.authorize_redirect(
         request, request.build_absolute_uri(reverse("callback"))
