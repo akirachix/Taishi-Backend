@@ -29,14 +29,10 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test
-
-      - name: Run migrations
-        run: |
-          python manage.py migrate
-
       - name: Run tests
         run: |
           python manage.py test
       - name: Format code with black
         run: |
           black .
+
