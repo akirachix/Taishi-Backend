@@ -51,7 +51,6 @@ jobs:
         if: steps.action_black.outcome == 'failure'
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           title: "Format Python code with psf/black"
           commit-message: ":art: Format Python code with psf/black"
           body: "This pull request formats the code using Black."
