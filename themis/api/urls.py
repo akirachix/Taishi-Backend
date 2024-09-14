@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import SignupView, LoginView, UserDetailView, UserListView, ProfileListView
+from .views import SignupView, LoginView, UserDetailView, UserListView, ProfileListView,ProfileView
+from . import views
+
 
 urlpatterns = [
     path('signup/', SignupView.as_view(), name='user_signup'),
@@ -7,7 +9,7 @@ urlpatterns = [
     path('users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
     path('users/', UserListView.as_view(), name='user_list'),
     path('profiles/', ProfileListView.as_view(), name='profile_list'),
-    
-
+    path('profiles/<int:pk>/', ProfileView.as_view(), name='profile_list'),
+    path('generate_token/', views.generate_token, name='generate_token'),
 
 ]
