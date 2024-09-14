@@ -47,8 +47,7 @@ jobs:
         run: |
           python manage.py test
 
-      - name: Create Pull Request if Black Reformats
-        if: steps.action_black.outcome == 'failure'
+      - if: steps.action_black.outcome == 'failure'
         uses: peter-evans/create-pull-request@v3
         with:
           title: "Format Python code with psf/black"
