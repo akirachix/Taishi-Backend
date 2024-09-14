@@ -19,6 +19,8 @@ oauth.register(
     },
     server_metadata_url=f"http://{settings.AUTH0_DOMAIN}/.well-known/openid-configuration",
 )
+
+
 @csrf_exempt
 def login(request):
     return oauth.auth0.authorize_redirect(
@@ -46,6 +48,7 @@ def logout(request):
         ),
     )
 
+
 def index(request):
     return render(
         request,
@@ -56,9 +59,9 @@ def index(request):
         },
     )
 
+
 def check_existing_email(email):
     """
     Check if a user with the given email address already exists.
     """
     return User.objects.filter(email=email).exists()
-

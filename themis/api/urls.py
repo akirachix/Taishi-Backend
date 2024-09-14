@@ -4,6 +4,7 @@ from . import views
 
 
 urlpatterns = [
+  
     path('signup/', SignupView.as_view(), name='user_signup'),
     path('login/', LoginView.as_view(), name='user_login'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user_detail'),
@@ -11,5 +12,4 @@ urlpatterns = [
     path('profiles/', ProfileListView.as_view(), name='profile_list'),
     path('profiles/<int:pk>/', ProfileView.as_view(), name='profile_list'),
     path('generate_token/', views.generate_token, name='generate_token'),
-
 ]
