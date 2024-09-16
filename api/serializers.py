@@ -1,5 +1,3 @@
-
-
 from rest_framework import serializers
 from user.models import User
 from user_profile.models import UserProfile
@@ -21,12 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(email=validated_data["email"]).exists():
             raise serializers.ValidationError(
                 {"email": "This email is already in use."}
-            )
+        )
         user = User.objects.create_user(
             email=validated_data["email"],
             password=validated_data["password"],
-            first_name=["first_name", ""],
-            last_name=["last_name", ""],
+            first_name=validated_data["first_name"],  # Corrected
+            last_name=validated_data["last_name"],    # Corrected
             role=validated_data.get("role", "user"),
         )
         return user
