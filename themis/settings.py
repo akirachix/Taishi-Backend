@@ -1,3 +1,6 @@
+import dj_database_url
+import django_heroku
+
 """
 Django settings for themis project.
 
@@ -27,7 +30,7 @@ SECRET_KEY = "django-insecure-y-$l6^t59yyitji4a7!1d35dvank)8tmagl#3mlaqqj)1h4mx3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -46,7 +49,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware"
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -87,22 +92,19 @@ WSGI_APPLICATION = "themis.wsgi.application"
 
 # Database configuration
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL')
+    )
 }
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Fallback for local development and test environments
+if not os.getenv('DATABASE_URL'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 
 # Password validation
@@ -110,6 +112,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
+        
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
@@ -139,7 +142,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -159,10 +167,10 @@ if ENV_FILE:
 
 
 # Load Auth0 application settings into memory
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
-AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
-AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
+AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", '')
+AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID", '')
+AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET", '')
 
-REDIRECT_URI = "http://127.0.0.1:8000/auth/callback/"
 REDIRECT_URI = "http://127.0.0.1:8000/auth/"
 
+django_heroku.settings(locals())
