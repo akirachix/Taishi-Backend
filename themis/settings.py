@@ -30,9 +30,7 @@ SECRET_KEY = "django-insecure-y-$l6^t59yyitji4a7!1d35dvank)8tmagl#3mlaqqj)1h4mx3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'themisai.herokuapp.com', 'localhost'
-]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -51,7 +49,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware"
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -144,6 +144,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
 
 # Default primary key field type
@@ -164,9 +167,9 @@ if ENV_FILE:
 
 
 # Load Auth0 application settings into memory
-AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN")
-AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
-AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
+AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", '')
+AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID", '')
+AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET", '')
 
 REDIRECT_URI = "http://127.0.0.1:8000/auth/"
 
