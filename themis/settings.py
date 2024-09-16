@@ -1,5 +1,5 @@
 import dj_database_url
-import django_heroku
+
 
 """
 Django settings for themis project.
@@ -173,4 +173,3 @@ AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET", '')
 
 REDIRECT_URI = "http://127.0.0.1:8000/auth/"
 
-django_heroku.settings(locals())
