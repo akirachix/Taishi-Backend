@@ -12,6 +12,7 @@ black==24.8.0
 asgiref==3.8.1
 certifi==2024.8.30
 requests==2.32.3
+djangorestframework-simplejwt==5.3.1
 
 
 
