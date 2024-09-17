@@ -63,7 +63,7 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOW_ALL_ORIGINS = True  
+CORS_ORIGIN_ALLOW_ALL = True  
 
 
 
@@ -175,6 +175,5 @@ if ENV_FILE:
 AUTH0_DOMAIN = os.environ.get("AUTH0_DOMAIN", '')
 AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID", '')
 AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET", '')
-
 REDIRECT_URI = "http://127.0.0.1:8000/auth/"
 
