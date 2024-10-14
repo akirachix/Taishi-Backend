@@ -99,8 +99,9 @@ class LoginView(APIView):
                     {
                         "message": "Login successful!",
                         "user": {
-                            "first_name": user.first_name,
-                            "last_name": user.last_name,
+                            "id": user.id, 
+                            "first_name": user.first_name,  
+                            "last_name": user.last_name,  
                         }
                     },
                     status=status.HTTP_200_OK
@@ -109,6 +110,7 @@ class LoginView(APIView):
                 {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class UserDetailView(generics.RetrieveUpdateAPIView):
     """
     API view to retrieve or update a specific user
